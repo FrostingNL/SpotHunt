@@ -174,7 +174,6 @@ public class Test {
 					calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
 				} else if(possibleX<0 && possibleY>0) {
 					if(Math.abs(possibleX) < Math.abs(possibleY)) {
-						//testttting
 						possibleX = Math.abs(possibleX);
 						possibleY = Math.abs(possibleY);
 						for(int i=1; i<possibleX+1; i++) {

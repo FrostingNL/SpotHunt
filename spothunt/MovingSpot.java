@@ -36,6 +36,11 @@ public class MovingSpot implements Spot {
 		playfield.cells[x][y].putSpot();
 	}
 	
+	public GoalSpot pickTarget(GoalSpot[] allGoals) {
+		GoalSpot target = null;
+		return target;
+	}
+	
 	public int getX() {
 		return x;
 	}

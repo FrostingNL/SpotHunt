@@ -38,6 +38,44 @@ public class MovingSpot implements Spot {
 	
 	public GoalSpot pickTarget(GoalSpot[] allGoals) {
 		GoalSpot target = null;
+		PossibleTarget[] possibleTargets = new PossibleTarget[allGoals.length];
+		
+		
+		
+		
+		for(int i = 0; i < allGoals.length; i ++) {
+			GoalSpot current = allGoals[i];
+			possibleTargets[i] = new PossibleTarget(current);
+			PossibleTarget possible = possibleTargets[i];
+			int possibleX = current.getX() - this.x;
+			int possibleY = current.getY() - this.y;
+			int dangerCost = 0;
+			int highestDanger = 0;
+			int calculatedCost = 0;
+			/*
+			 * CLEANED UP QUICKEST DANGER PATH COST THING HERE! 
+			 */
+			
+			double penalty = 1;
+			if(current.getX()==0 || current.getX()==playfield.width-1 
+					|| current.getY()==playfield.height || current.getY()==0) {
+				penalty = 1.6;
+			}
+			possible.setHighestDanger(highestDanger);
+			possible.setTPD(current.getTPD());
+			possible.setSD(current.getSD());
+			possible.setPenalty(penalty);
+			possible.setCalcCost(calculatedCost);
+			possible.setSurThreat(current.calculateSurround());
+		}
+		double TPDrating = 0.5;
+		double SurRating = 1;
+		double SDRating = 0.5;
+		double CalcRating = 1;
+		double HDRating = 1;
+		
+		
+		
 		return target;
 	}
 	

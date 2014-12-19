@@ -28,7 +28,7 @@ public class Test {
 			// Show field
 		test.showPFValues(3);
 		
-		/* SUPER SECRET TEST AREA!! */
+		/* SUPER SECRET TEST AREA!! Not so secret anymore though */
 		PossibleTarget[] possibleTargets = new PossibleTarget[test.goals.length];
 		for(int k = 0; k < test.goals.length; k ++) {
 			possibleTargets[k] = new PossibleTarget(test.goals[k]);

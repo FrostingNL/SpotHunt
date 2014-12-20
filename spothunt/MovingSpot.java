@@ -1,10 +1,7 @@
 package spothunt;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class takes care of the <code>MovingSpot</code>.<br>
@@ -19,39 +16,7 @@ public class MovingSpot implements Spot {
 	int x = 0;
 	int y = 0;
 	Playfield playfield;
-	// initialize the Map factors which will contain the rating and the mathematical symbol for each factor
-	private static final Map<String, Map<String, Object>> factors;
-    static {
-        Map<String, Map<String, Object>> prefactors = new HashMap<String, Map<String, Object>>();
-        Map<String, Object> values = new HashMap<String, Object>();
-        
-        //Set values for rating and mathSymbol for the TPD factor
-        values.put("rating", 0.5);
-        values.put("mathSymbol", ">");
-        prefactors.put("TPD", values);
-
-        //Set values for rating and mathSymbol for the Suround factor
-        values.put("rating", 1);
-        values.put("mathSymbol", "<");
-        prefactors.put("Surround", values);
-
-        //Set values for rating and mathSymbol for the SD factor
-        values.put("rating", 0.5);
-        values.put("mathSymbol", "<");
-        prefactors.put("SD", values);
-
-        //Set values for rating and mathSymbol for the Calc factor
-        values.put("rating", 1);
-        values.put("mathSymbol", "<");
-        prefactors.put("Calc", values);
-
-        //Set values for rating and mathSymbol for the HD factor
-        values.put("rating", 1);
-        values.put("mathSymbol", "<");
-        prefactors.put("HD", values);
-        
-        factors = Collections.unmodifiableMap(prefactors);
-    }
+	public static Factor[] factors = new Factor[]{Factor.TPD, Factor.SD, Factor.FDC, Factor.HD};
 	
 	/**
 	 * The constructor of <code>MovingSpot</code>. This will link the spot to a <code>Playfield</code> and set it to its start location <code>[0,0]</code>.
@@ -119,8 +84,8 @@ public class MovingSpot implements Spot {
 			possible.setSurThreat(weightedSurThreat);
 		}
 		
-		for(Map.Entry<String, Map<String, Object>> factor : factors.entrySet()) {
-			possibleTargets = rateFactor(possibleTargets, factor.getKey());	
+		for(Factor current : factors) {
+			possibleTargets = rateFactor(possibleTargets, current);	
 		}
 		
 		/*
@@ -136,14 +101,14 @@ public class MovingSpot implements Spot {
 	 * @param factor			the name of the factor that will be rated
 	 * @return possibleTargets	the updated array of all PossibleTargets with updated ratings
 	 */
-	public PossibleTarget[] rateFactor(PossibleTarget[] possibleTargets, String factor) {
+	public PossibleTarget[] rateFactor(PossibleTarget[] possibleTargets, Factor factor) {
 		PossibleTarget best = possibleTargets[0];
 		Boolean[] compares = new Boolean[2];
-		double rating = (double) factors.get(factor).get("Rating");
+		double rating = (double) factor.getRating();
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
 		equals.add(best);
 			for(int k = 1; k < possibleTargets.length; k++) {
-				compares = comparePossibleTargets(factors.get(factor).get("MathSymbol").toString(), possibleTargets[k], best);
+				compares = comparePossibleTargets(factor, possibleTargets[k], best);
 				if(compares[0]) {
 					for(int j=0; j < equals.size(); j++) {
 						equals.get(j).rating = equals.get(j).rating - rating;
@@ -168,27 +133,27 @@ public class MovingSpot implements Spot {
 	 * @param best		the second PossibleSpot (the one that will be placed behind the evaluation symbol)
 	 * @return result	an Boolean[2] array. Index 0 will contain true/false for the >/< evaluator and Index 1 will contain the true/false for the == evaluator.
 	 */
-	public Boolean[] comparePossibleTargets(String factor, PossibleTarget possible, PossibleTarget best) {
+	public Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
 		Boolean[] result = new Boolean[2];
 		
 		switch(factor) {
-			case "TPD":
+			case TPD:
 				result[0] = possible.getTPD() > best.getTPD();
 				result[1] = possible.getTPD() == best.getTPD();
 				break;
-			case "Surround":
+			case ST:
 				result[0] = possible.getSurThreat() < best.getSurThreat();
 				result[1] = possible.getSurThreat() == best.getSurThreat();
 				break;
-			case "SD":
+			case SD:
 				result[0] = possible.getSD() < best.getSD();
 				result[1] = possible.getSD() == best.getSD();
 				break;
-			case "Calc":
+			case FDC:
 				result[0] =	possible.getCalcCost() < best.getCalcCost();
 				result[1] = possible.getCalcCost() == best.getCalcCost();
 				break;
-			case "HD": 
+			case HD: 
 				result[0] = possible.getHighestDanger() < best.getHighestDanger();
 				result[1] = possible.getHighestDanger() == best.getHighestDanger();
 				break;

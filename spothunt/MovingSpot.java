@@ -1,10 +1,7 @@
 package spothunt;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * This class takes care of the <code>MovingSpot</code>.<br>
@@ -57,9 +54,10 @@ public class MovingSpot implements Spot {
 	 * @return target	the GoalSpot that is the best choice to move to
 	 */
 	public GoalSpot pickTarget(GoalSpot[] allGoals) {
-		GoalSpot target = null;
+			// Create the empty array that will contain all the PossibleTargets.
 		PossibleTarget[] possibleTargets = new PossibleTarget[allGoals.length];
 		
+			// Create all the PossibleTargets (out of GoalSpots) and set the correct values for HD, TPD, SD, FDC and ST.
 		for(int i = 0; i < allGoals.length; i ++) {
 			GoalSpot current = allGoals[i];
 			possibleTargets[i] = new PossibleTarget(current);
@@ -68,13 +66,17 @@ public class MovingSpot implements Spot {
 			int calculatedCost = 0;
 			double penalty = 1;
 			
+				// Calculate the Fastest Danger Cost to this spot
 			calculatedCost = current.calculateDangerCost(x, y);
 			
+			//TODO: Move to the calculateSurround() in GoalSpot
+				// Check if the GoalSpot is located against the wall and add a penalty
 			if(current.getX()==0 || current.getX()==playfield.width-1 
 					|| current.getY()==playfield.height || current.getY()==0) {
 				penalty = 1.6;
 			}
 			
+				// Set all the values for the variables in PossibleTarget
 			possible.setHighestDanger(highestDanger);
 			possible.setTPD(current.getTPD());
 			possible.setSD(current.getSD());
@@ -84,26 +86,35 @@ public class MovingSpot implements Spot {
 			possible.setSurThreat(weightedSurThreat);
 		}
 		
+			// Loop through all factors and rate them for each of the PossibleTargets
 		for(Factor current : factors) {
 			possibleTargets = rateFactor(possibleTargets, current);	
 		}
 		
+			// Create a new list BestOptions to compare the ratings
 		List<PossibleTarget> bestOptions = new ArrayList<PossibleTarget>();
+			// Compare ratings between all the PossibleTargets
 		bestOptions = compareRatings(possibleTargets);
+		
+			// Check if bestOptions.size() is 1, as that means there is only one best Spot -> return this spot
 		if(bestOptions.size()==1) {
 			return bestOptions.get(0).toGoalSpot();
-		} 
+		} // Else: Continue with all the best options left
 		
+			// Make new list to be rated on independent factors (bestOptions = backup)
 		List<PossibleTarget> compareOptions = bestOptions;
+			// Loop through all the factors and compare them for all the remaining best options
 		for(Factor current : factors) {
 			compareOptions = compareFactor(current, compareOptions);
+				// If the list has a size of 1 then, a result has been found and return this GoalSpot
 			if(compareOptions.size()==1) {
 				return compareOptions.get(0).toGoalSpot();
-			} else {
-				compareOptions = bestOptions;
+				// Else reset compareOptions with bestOptions and then try again for the next factor
+			/*} else {
+				compareOptions = bestOptions; */
 			}
 		}
-		
+			//If all else fails, pick a random target from the original PossibleTargets
 		return pickRandomGoal(possibleTargets);
 	}
 	
@@ -114,15 +125,23 @@ public class MovingSpot implements Spot {
 	 * @return possibleTargets	the updated array of all PossibleTargets with updated ratings
 	 */
 	private PossibleTarget[] rateFactor(PossibleTarget[] possibleTargets, Factor factor) {
+			// Set the first possibleTarget as the current best target
 		PossibleTarget best = possibleTargets[0];
+			// Create a new Boolean[] that will contain the results of comparePossibleTargets
 		Boolean[] compares = new Boolean[2];
-		double rating = (double) factor.getRating();
+			// Set the rating to the corresponding Factor rating
+		double rating = factor.getRating();
+			// Create new list that will contain all the equals
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
+			// Add the current best to the list of equals
 		equals.add(best);
+				// Loop through all the PossibleTargets and compare them with the current best
 			for(int k=1; k<possibleTargets.length; k++) {
-				PossibleTarget current = possibleTargets[0];
+					// Set the current possibleTarget as 'current'
+				PossibleTarget current = possibleTargets[k];
+					// Compare the current with the best PossibleTarget, based on a factor
 				compares = comparePossibleTargets(factor, current, best);
-				if(compares[0]) {
+				if(compares[0]) { // if current >/< than the best, remove the best from the list and set this as best and add to list
 					for(int j=0; j < equals.size(); j++) {
 						equals.get(j).rating = equals.get(j).rating - rating;
 					}
@@ -130,7 +149,7 @@ public class MovingSpot implements Spot {
 					best = current;
 					best.rating = best.rating + rating;
 					equals.add(best);
-				} else if (compares[1]) {
+				} else if (compares[1]) { // else (current==best), name this one as best and add this one also to the list
 					best = current;
 					best.rating = best.rating + rating;
 					equals.add(best);
@@ -146,18 +165,25 @@ public class MovingSpot implements Spot {
 	 * @return equals			, the list of PossibleTargets (in this case the length is either 1 or 0)
 	 */
 	private List<PossibleTarget> compareFactor(Factor factor, List<PossibleTarget> compareOptions) {
+			// Set the first possibleTarget as the current best target
 		PossibleTarget best = compareOptions.get(0);
+			// Create new list that will contain all the equals
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
+			// Add the current best to the list of equals
 		equals.add(compareOptions.get(0));
+			// Create a new Boolean[] that will contain the results of comparePossibleTargets
 		Boolean[] compares = new Boolean[2];
+			// Loop through all the PossibleTargets and compare the values of the factors
 		for(int k=1; k<compareOptions.size(); k++) {
+				// set the current PossibleTarget as 'current'
 			PossibleTarget current = compareOptions.get(k);
+				// Compare the current with the best PossibleTarget, based on a factor
 			compares = comparePossibleTargets(factor, current, best);
-			if(compares[0]) {
+			if(compares[0]) { // if current >/< than the best, remove the best from the list and set this as best and add to list
 				equals.clear();
 				best = current;
 				equals.add(best);
-			} else if (compares[1]){
+			} else if (compares[1]){ // else (current==best), clear the list and break (as it turns out there are more than one with the same valuees)
 				equals.clear();
 				break;
 			}
@@ -173,8 +199,10 @@ public class MovingSpot implements Spot {
 	 * @return result	an Boolean[2] array. Index 0 will contain true/false for the >/< evaluator and Index 1 will contain the true/false for the == evaluator.
 	 */
 	private Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
+			// Create a new Boolean[] that will contain the results of comparePossibleTargets
 		Boolean[] result = new Boolean[2];
 		
+			// Look at which factor has to be compared and compare them between two PossibleTargets
 		switch(factor) {
 			case TPD:
 				result[0] = possible.getTPD() > best.getTPD();
@@ -207,25 +235,37 @@ public class MovingSpot implements Spot {
 	 * @return bestOptions, the list of the best PossibleTargets
 	 */
 	private List<PossibleTarget> compareRatings(PossibleTarget[] possibleTargets) {
+			// create list bestOptions, which will be all the PossibleTargets with the same and highest values
 		List<PossibleTarget> bestOptions = new ArrayList<PossibleTarget>();
+			// set the first possibleTarget as current best target
 		PossibleTarget highestRating = possibleTargets[0];
+			// Add this target to the list of bestOptions
 		bestOptions.add(highestRating);
-		for(PossibleTarget current : possibleTargets) {
-			if(highestRating.rating < current.rating) {
+			// Loop through all the possibleTargets and compare their ratings
+		for(int k = 0; k < possibleTargets.length; k++) {
+			if(highestRating.rating < possibleTargets[k].rating) {	// if one with a higher rating is found, empty the list and add this as best
 				bestOptions.clear();
-				highestRating = current;
-				bestOptions.add(current);
-			} else if (highestRating.rating == current.rating) {
-				bestOptions.add(current);
+				highestRating = possibleTargets[k];
+				bestOptions.add(possibleTargets[k]);
+			} else if (highestRating.rating == possibleTargets[k].rating) { // else (same ratings), add the current rating to bestOptions
+				bestOptions.add(possibleTargets[k]);
 			}
 		}
 		return bestOptions;
 	}
 	
+	/**
+	 * Picks a random <code>GoalSpot</code> from a given given <code>PossibleTarget</code>s aray
+	 * @param possibleTargets the array containing the PossibleTargets
+	 * @return target	, random GoalSpot
+	 */
 	private GoalSpot pickRandomGoal(PossibleTarget[] possibleTargets) {
 		GoalSpot target = null;
-		int range = possibleTargets.length;
-		int picked = (int) Math.random()*range;
+			// Range is how many spots there are (-1, as the length is 1 higher than the amount of indexes used)
+		int range = possibleTargets.length-1;
+			// Math.random picks a number between 0 and 1, so balance that with the range and you should get a number between 0 and range (at least thats the idea..)
+		int picked = (int) (Math.random()*range);
+			// Pick the spot from possibleTargets that is the same as the random picked number
 		target = possibleTargets[picked].toGoalSpot();
 		return target;
 	}

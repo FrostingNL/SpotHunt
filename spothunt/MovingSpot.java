@@ -1,7 +1,10 @@
 package spothunt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This class takes care of the <code>MovingSpot</code>.<br>
@@ -61,8 +64,6 @@ public class MovingSpot implements Spot {
 			GoalSpot current = allGoals[i];
 			possibleTargets[i] = new PossibleTarget(current);
 			PossibleTarget possible = possibleTargets[i];
-			int possibleX = current.getX() - this.x;
-			int possibleY = current.getY() - this.y;
 			int highestDanger = 0;
 			int calculatedCost = 0;
 			double penalty = 1;
@@ -79,7 +80,6 @@ public class MovingSpot implements Spot {
 			possible.setSD(current.getSD());
 			possible.setPenalty(penalty);
 			possible.setCalcCost(calculatedCost);
-			
 			int weightedSurThreat = (int) (current.calculateSurround() * penalty);
 			possible.setSurThreat(weightedSurThreat);
 		}
@@ -88,11 +88,23 @@ public class MovingSpot implements Spot {
 			possibleTargets = rateFactor(possibleTargets, current);	
 		}
 		
-		/*
-		 * Further on -- still gotta implement.
-		 */
+		List<PossibleTarget> bestOptions = new ArrayList<PossibleTarget>();
+		bestOptions = compareRatings(possibleTargets);
+		if(bestOptions.size()==1) {
+			return bestOptions.get(0).toGoalSpot();
+		} 
 		
-		return target;
+		List<PossibleTarget> compareOptions = bestOptions;
+		for(Factor current : factors) {
+			compareOptions = compareFactor(current, compareOptions);
+			if(compareOptions.size()==1) {
+				return compareOptions.get(0).toGoalSpot();
+			} else {
+				compareOptions = bestOptions;
+			}
+		}
+		
+		return pickRandomGoal(possibleTargets);
 	}
 	
 	/**
@@ -101,29 +113,56 @@ public class MovingSpot implements Spot {
 	 * @param factor			the name of the factor that will be rated
 	 * @return possibleTargets	the updated array of all PossibleTargets with updated ratings
 	 */
-	public PossibleTarget[] rateFactor(PossibleTarget[] possibleTargets, Factor factor) {
+	private PossibleTarget[] rateFactor(PossibleTarget[] possibleTargets, Factor factor) {
 		PossibleTarget best = possibleTargets[0];
 		Boolean[] compares = new Boolean[2];
 		double rating = (double) factor.getRating();
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
 		equals.add(best);
-			for(int k = 1; k < possibleTargets.length; k++) {
-				compares = comparePossibleTargets(factor, possibleTargets[k], best);
+			for(int k=1; k<possibleTargets.length; k++) {
+				PossibleTarget current = possibleTargets[0];
+				compares = comparePossibleTargets(factor, current, best);
 				if(compares[0]) {
 					for(int j=0; j < equals.size(); j++) {
 						equals.get(j).rating = equals.get(j).rating - rating;
 					}
 					equals.clear();
-					best = possibleTargets[k];
+					best = current;
 					best.rating = best.rating + rating;
 					equals.add(best);
 				} else if (compares[1]) {
-					best = possibleTargets[k];
+					best = current;
 					best.rating = best.rating + rating;
 					equals.add(best);
 				}
 			}
 		return possibleTargets;
+	}
+	
+	/**
+	 * <code>compareFactor</code> compares <code>Factor</code> values between two <code>PossibleSpot</code>s
+	 * @param factor			the <code>Factor</code> that has to be compared
+	 * @param compareOptions	the list of PossibleTargets that have to be compared
+	 * @return equals			, the list of PossibleTargets (in this case the length is either 1 or 0)
+	 */
+	private List<PossibleTarget> compareFactor(Factor factor, List<PossibleTarget> compareOptions) {
+		PossibleTarget best = compareOptions.get(0);
+		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
+		equals.add(compareOptions.get(0));
+		Boolean[] compares = new Boolean[2];
+		for(int k=1; k<compareOptions.size(); k++) {
+			PossibleTarget current = compareOptions.get(k);
+			compares = comparePossibleTargets(factor, current, best);
+			if(compares[0]) {
+				equals.clear();
+				best = current;
+				equals.add(best);
+			} else if (compares[1]){
+				equals.clear();
+				break;
+			}
+		}
+		return equals;
 	}
 	
 	/**
@@ -133,7 +172,7 @@ public class MovingSpot implements Spot {
 	 * @param best		the second PossibleSpot (the one that will be placed behind the evaluation symbol)
 	 * @return result	an Boolean[2] array. Index 0 will contain true/false for the >/< evaluator and Index 1 will contain the true/false for the == evaluator.
 	 */
-	public Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
+	private Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
 		Boolean[] result = new Boolean[2];
 		
 		switch(factor) {
@@ -160,6 +199,35 @@ public class MovingSpot implements Spot {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * <code>compareRatings</code> compares all the ratings of <code>PossibleTarget</code>s and retuns the best ones
+	 * @param possibleTargets	an array of all the PossibleTargets
+	 * @return bestOptions, the list of the best PossibleTargets
+	 */
+	private List<PossibleTarget> compareRatings(PossibleTarget[] possibleTargets) {
+		List<PossibleTarget> bestOptions = new ArrayList<PossibleTarget>();
+		PossibleTarget highestRating = possibleTargets[0];
+		bestOptions.add(highestRating);
+		for(PossibleTarget current : possibleTargets) {
+			if(highestRating.rating < current.rating) {
+				bestOptions.clear();
+				highestRating = current;
+				bestOptions.add(current);
+			} else if (highestRating.rating == current.rating) {
+				bestOptions.add(current);
+			}
+		}
+		return bestOptions;
+	}
+	
+	private GoalSpot pickRandomGoal(PossibleTarget[] possibleTargets) {
+		GoalSpot target = null;
+		int range = possibleTargets.length;
+		int picked = (int) Math.random()*range;
+		target = possibleTargets[picked].toGoalSpot();
+		return target;
 	}
 	
 	public int getX() {

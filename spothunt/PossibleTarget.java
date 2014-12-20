@@ -4,6 +4,7 @@ public class PossibleTarget {
 	GoalSpot spot;
 	int TPD;
 	int SD;
+	int arrayIndex;
 	double penalty;
 	int calcCost;
 	int surThreat;
@@ -49,5 +50,9 @@ public class PossibleTarget {
 	}
 	public void setSurThreat(int surThreat) {
 		this.surThreat = surThreat;
+	}
+	
+	public GoalSpot toGoalSpot() {
+		return this.spot;
 	}
 }

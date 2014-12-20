@@ -83,9 +83,10 @@ public class GoalSpot implements Spot {
 		return spotDistance;
 	}
 	
+	//TODO: Fix this function
 	/**
-	 * Calculates the surround threat arround this spot. BROKEN!!! Semi-works. (aka works enough to show idea)
-	 * @return surroundThreat;
+	 * Calculates the surround threat arround this spot. Semi-works. (aka works enough to show idea)
+	 * @return surroundThreat	the value of the surrounding threat
 	 */
 	public int calculateSurround() {
 		int xUp = x;
@@ -122,6 +123,23 @@ public class GoalSpot implements Spot {
 			}
 		}
 		return surroundThreat;
+	}
+	
+	//TODO: Finish this function
+	/**
+	 * Calculates the surround threat arround this spot. NOT FINISHED
+	 * @param x			the x coordinate of the MovingSpot (or other object in the playfield)
+	 * @param y			the y coordinate of the MovingSpot (or other object in the playfield)
+	 * @return result	the value of the danger cost of the path from [x,y] to this GoalSpot
+	 */
+	public int calculateDangerCost(int x, int y) {
+		int result = 0;
+		
+		/*
+		 * CLEANED UP QUICKEST DANGER PATH COST THING HERE! 
+		 */
+		
+		return result;
 	}
 	
 	public String toString() {

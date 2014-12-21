@@ -76,8 +76,9 @@ public class GreedySearch implements Search {
 		if(x+xDirection<spot.playfield.width && x+xDirection>=0 && y+yDirection<spot.playfield.height && y+yDirection>=0)
 			CellDanger.add(2, spot.playfield.cells[x+xDirection][y+yDirection]);
 		
+		
 		for(int j=0; j<CellDanger.size();j++) {
-			System.out.println("CellDanger of [" + CellDanger.get(j).getX() + ", " + CellDanger.get(j).getY() + "]: " + CellDanger.get(j).getDanger());
+			if(CellDanger.get(j).hasPlayer()) CellDanger.remove(j);
 		}
 		
 		

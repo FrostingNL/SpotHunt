@@ -13,11 +13,11 @@ public class Test {
 			// Move the MovingSpot
 		test.moveSpot(0,6);
 			// Move P'layer 0
-		test.movePlayer(0, 5, 7);
+		test.movePlayer(0, 0, 5);
 			// Move Player 1
-		test.movePlayer(1, 4, 6);
+		test.movePlayer(1, 1, 5);
 			// Move Player 2
-		test.movePlayer(2, 1, 4);
+		test.movePlayer(2, 1, 6);
 			// Get information about the compoments
 		test.getInformation();
 			// Show field

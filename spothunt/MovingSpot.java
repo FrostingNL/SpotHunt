@@ -16,14 +16,16 @@ public class MovingSpot implements Spot {
 	int x = 0;
 	int y = 0;
 	Playfield playfield;
+	Search search;
 	public static Factor[] factors = new Factor[]{Factor.FDC, Factor.SD, Factor.HD, Factor.TPD, Factor.ST};
 	
 	/**
 	 * The constructor of <code>MovingSpot</code>. This will link the spot to a <code>Playfield</code> and set it to its start location <code>[0,0]</code>.
 	 * @param playfield	the Playfield it is linked to.
 	 */
-	public MovingSpot(Playfield playfield) {
+	public MovingSpot(Playfield playfield, Search search) {
 		assert playfield != null : "Playfield not found!";
+		this.search = search;
 		this.playfield = playfield;
 			// Set MovingSpot at its start position at [0,0]
 		playfield.cells[0][0].putSpot();
@@ -291,72 +293,18 @@ public class MovingSpot implements Spot {
 		target = bestOptions.get(picked).toGoalSpot();
 		return target;
 	}
-	
-	public List<Cell> findPath(GoalSpot goal) {
-		System.out.println("MovingSpot: " + this.toString());
-		System.out.println("GoalSpot: " + goal.toString());
 
-		List<Cell>path = new ArrayList<Cell>();
-		int xGoal = goal.getX();
-		int yGoal = goal.getY();
-		int xSpot = this.getX();
-		int ySpot = this.getY();
-		int xDirection;
-		int yDirection;
-		
-		
-		if(xGoal-xSpot==0) {
-			xDirection = 0;
-		} else if(xGoal-xSpot>0) {
-			xDirection = -1;
-		} else {
-			xDirection = 1;
-		}
-		
-		if(yGoal-ySpot==0) {
-			yDirection = 0;
-		} else if(yGoal-ySpot>0) {
-			yDirection = -1;
-		} else {
-			yDirection = 1;
-		}
-		
-		Cell nextMove = nextMove(xSpot, ySpot, xDirection, yDirection);
-		path.add(nextMove);
-		boolean foundTarget = false;
-		while(!foundTarget) {
-			nextMove = nextMove(path.get(path.size()-1).getX(), path.get(path.size()-1).getY(), xDirection, yDirection);
-			path.add(nextMove);
-			if(nextMove.getX()==goal.getX() && nextMove.getY()==goal.getY()) foundTarget = true;
-		}
-		System.out.println("Path Length: " + path.size());
-		for(int i =0; i<path.size(); i++) {
-			System.out.println("Step " + (i+1) + ": [" + path.get(i).getX() + ", " + path.get(i).getY() + "]");
-		}
-		return path;
-	}
-	
-	public Cell nextMove (int x, int y, int xDirection, int yDirection) {
-		List<Cell> CellDanger = new ArrayList<Cell>();
-		if(y+1<playfield.height) CellDanger.add(playfield.cells[x][y+1]);
-		if(y-1>=0) CellDanger.add(playfield.cells[x][y-1]);
-		if(x+1<playfield.width) CellDanger.add(playfield.cells[x+1][y]);
-		if(x-1>=0) CellDanger.add(playfield.cells[x-1][y]);
-		if(x-1>=0 && y-1>=0) CellDanger.add(playfield.cells[x-1][y-1]);
-		if(x+1<playfield.width && y+1<playfield.height) CellDanger.add(playfield.cells[x+1][y+1]);
-		if(x-1>=0 && y+1<playfield.height) CellDanger.add(playfield.cells[x-1][y+1]);
-		if(x+1<playfield.width && y-1>=0) CellDanger.add(playfield.cells[x+1][y-1]);
-		int picked = (int) (Math.random()*(CellDanger.size()-1));
-		Cell next = CellDanger.get(picked);
-		return next;
-	}
-	
 	public int getX() {
 		return x;
 	}
 	
 	public int getY() {
 		return y;
+	}
+	
+	public List<Cell> findPath(GoalSpot goal) {
+		return search.findPath(goal, this);
+		
 	}
 	
 	public String toString() {

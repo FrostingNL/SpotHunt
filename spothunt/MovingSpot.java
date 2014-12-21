@@ -63,7 +63,6 @@ public class MovingSpot implements Spot {
 			GoalSpot current = allGoals[i];
 			possibleTargets[i] = new PossibleTarget(current);
 			PossibleTarget possible = possibleTargets[i];
-			int highestDanger = 0;
 			int calculatedCost = 0;
 			double penalty = 1;
 			
@@ -330,15 +329,25 @@ public class MovingSpot implements Spot {
 			path.add(nextMove);
 			if(nextMove.getX()==goal.getX() && nextMove.getY()==goal.getY()) foundTarget = true;
 		}
-		
+		System.out.println("Path Length: " + path.size());
+		for(int i =0; i<path.size(); i++) {
+			System.out.println("Step " + (i+1) + ": [" + path.get(i).getX() + ", " + path.get(i).getY() + "]");
+		}
 		return path;
 	}
 	
 	public Cell nextMove (int x, int y, int xDirection, int yDirection) {
-		int randomX = (int) (Math.random()*(playfield.width-1));
-		int randomY = (int) (Math.random()*(playfield.height-1));
-		Cell next = playfield.cells[randomX][randomY];
-		System.out.println(next.getX() + ", " + next.getY());
+		List<Cell> CellDanger = new ArrayList<Cell>();
+		if(y+1<playfield.height) CellDanger.add(playfield.cells[x][y+1]);
+		if(y-1>=0) CellDanger.add(playfield.cells[x][y-1]);
+		if(x+1<playfield.width) CellDanger.add(playfield.cells[x+1][y]);
+		if(x-1>=0) CellDanger.add(playfield.cells[x-1][y]);
+		if(x-1>=0 && y-1>=0) CellDanger.add(playfield.cells[x-1][y-1]);
+		if(x+1<playfield.width && y+1<playfield.height) CellDanger.add(playfield.cells[x+1][y+1]);
+		if(x-1>=0 && y+1<playfield.height) CellDanger.add(playfield.cells[x-1][y+1]);
+		if(x+1<playfield.width && y-1>=0) CellDanger.add(playfield.cells[x+1][y-1]);
+		int picked = (int) (Math.random()*(CellDanger.size()-1));
+		Cell next = CellDanger.get(picked);
 		return next;
 	}
 	

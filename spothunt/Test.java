@@ -11,7 +11,7 @@ public class Test {
 			// Add the goalSpots to the playfield
 		test.setGoals(goals);
 			// Move the MovingSpot
-		test.moveSpot(0,6);
+		test.moveSpot(0,8);
 			// Move P'layer 0
 		test.movePlayer(0, 3, 5);
 			// Move Player 1

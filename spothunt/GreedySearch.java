@@ -88,6 +88,7 @@ public class GreedySearch implements Search {
 		for(int k = 1; k<CellDanger.size(); k++) {
 			System.out.println("Best: " + best.toString());
 				if(CellDanger.get(k)!=null) {
+					if(CellDanger.get(k).isGoal()) return CellDanger.get(k);
 					if(best.getDanger() > CellDanger.get(k).getDanger()) {
 						best = CellDanger.get(k);
 						switch(lastSet) {

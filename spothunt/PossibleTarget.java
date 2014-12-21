@@ -51,8 +51,18 @@ public class PossibleTarget {
 	public void setSurThreat(int surThreat) {
 		this.surThreat = surThreat;
 	}
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+	public double getRating() {
+		return this.rating;
+	}
 	
 	public GoalSpot toGoalSpot() {
 		return this.spot;
+	}
+	
+	public String toString() {
+		return "[" + spot.getX() + ", " + spot.getY() + "]";
 	}
 }

@@ -16,7 +16,7 @@ public class MovingSpot implements Spot {
 	int x = 0;
 	int y = 0;
 	Playfield playfield;
-	public static Factor[] factors = new Factor[]{Factor.TPD, Factor.SD, Factor.FDC, Factor.HD};
+	public static Factor[] factors = new Factor[]{Factor.TPD, Factor.ST, Factor.SD, Factor.FDC, Factor.HD};
 	
 	/**
 	 * The constructor of <code>MovingSpot</code>. This will link the spot to a <code>Playfield</code> and set it to its start location <code>[0,0]</code>.
@@ -59,6 +59,7 @@ public class MovingSpot implements Spot {
 		
 			// Create all the PossibleTargets (out of GoalSpots) and set the correct values for HD, TPD, SD, FDC and ST.
 		for(int i = 0; i < allGoals.length; i ++) {
+			System.out.println("\nGOAL " + i);
 			GoalSpot current = allGoals[i];
 			possibleTargets[i] = new PossibleTarget(current);
 			PossibleTarget possible = possibleTargets[i];
@@ -67,7 +68,7 @@ public class MovingSpot implements Spot {
 			double penalty = 1;
 			
 				// Calculate the Fastest Danger Cost to this spot
-			calculatedCost = current.calculateDangerCost(x, y);
+			calculatedCost = current.calculateDangerCost(x, y, possible);
 			
 			//TODO: Move to the calculateSurround() in GoalSpot
 				// Check if the GoalSpot is located against the wall and add a penalty
@@ -77,19 +78,24 @@ public class MovingSpot implements Spot {
 			}
 			
 				// Set all the values for the variables in PossibleTarget
-			possible.setHighestDanger(highestDanger);
 			possible.setTPD(current.getTPD());
 			possible.setSD(current.getSD());
 			possible.setPenalty(penalty);
 			possible.setCalcCost(calculatedCost);
 			int weightedSurThreat = (int) (current.calculateSurround() * penalty);
 			possible.setSurThreat(weightedSurThreat);
+			System.out.println("HD: " + possible.getHighestDanger());
+			System.out.println("TPD: " + current.getTPD());
+			System.out.println("SD: " + current.getSD());
+			System.out.println("ST: " + weightedSurThreat);
+			System.out.println("FDC: " + calculatedCost);
 		}
 		
 			// Loop through all factors and rate them for each of the PossibleTargets
-		for(Factor current : factors) {
-			possibleTargets = rateFactor(possibleTargets, current);	
+		for(Factor factor : factors) {
+			possibleTargets = rateFactor(possibleTargets, factor);
 		}
+		
 		
 			// Create a new list BestOptions to compare the ratings
 		List<PossibleTarget> bestOptions = new ArrayList<PossibleTarget>();
@@ -105,6 +111,7 @@ public class MovingSpot implements Spot {
 		List<PossibleTarget> compareOptions = bestOptions;
 			// Loop through all the factors and compare them for all the remaining best options
 		for(Factor current : factors) {
+			compareOptions = bestOptions;
 			compareOptions = compareFactor(current, compareOptions);
 				// If the list has a size of 1 then, a result has been found and return this GoalSpot
 			if(compareOptions.size()==1) {
@@ -131,17 +138,22 @@ public class MovingSpot implements Spot {
 		Boolean[] compares = new Boolean[2];
 			// Set the rating to the corresponding Factor rating
 		double rating = factor.getRating();
+		System.out.println("rating: " + rating);
 			// Create new list that will contain all the equals
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
 			// Add the current best to the list of equals
 		equals.add(best);
+		best.rating = best.rating + rating;
 				// Loop through all the PossibleTargets and compare them with the current best
 			for(int k=1; k<possibleTargets.length; k++) {
 					// Set the current possibleTarget as 'current'
 				PossibleTarget current = possibleTargets[k];
 					// Compare the current with the best PossibleTarget, based on a factor
+				System.out.println("current " + current.toString());
+				System.out.println("best" + best.toString());
 				compares = comparePossibleTargets(factor, current, best);
-				if(compares[0]) { // if current >/< than the best, remove the best from the list and set this as best and add to list
+				System.out.println("Compares: [0]=" + compares[0] + ", compares[1]=" + compares[1]);
+				if(compares[0]==true) { // if current >/< than the best, remove the best from the list and set this as best and add to list
 					for(int j=0; j < equals.size(); j++) {
 						equals.get(j).rating = equals.get(j).rating - rating;
 					}
@@ -154,6 +166,9 @@ public class MovingSpot implements Spot {
 					best.rating = best.rating + rating;
 					equals.add(best);
 				}
+			}
+			for(PossibleTarget pt : possibleTargets) {
+				System.out.println("Rating: " + pt.rating);
 			}
 		return possibleTargets;
 	}
@@ -205,25 +220,31 @@ public class MovingSpot implements Spot {
 			// Look at which factor has to be compared and compare them between two PossibleTargets
 		switch(factor) {
 			case TPD:
-				result[0] = possible.getTPD() > best.getTPD();
+				System.out.println("GetTPD: " + possible.getTPD() + ", " + best.getTPD());
+				result[0] = (possible.getTPD() > best.getTPD());
 				result[1] = possible.getTPD() == best.getTPD();
-				break;
+				System.out.println("result 0: " + result[0]);
+				System.out.println("result 1: " + result[1]);
+				return result;
 			case ST:
+				System.out.println("GetST: " + possible.getSurThreat() + ", " + best.getSurThreat());
 				result[0] = possible.getSurThreat() < best.getSurThreat();
+				System.out.println("Hiero: " + result[0]);
 				result[1] = possible.getSurThreat() == best.getSurThreat();
-				break;
+				return result;
 			case SD:
+				System.out.println("GetSD: " + possible.getSD() + ", " + best.getSD());
 				result[0] = possible.getSD() < best.getSD();
 				result[1] = possible.getSD() == best.getSD();
-				break;
+				return result;
 			case FDC:
 				result[0] =	possible.getCalcCost() < best.getCalcCost();
 				result[1] = possible.getCalcCost() == best.getCalcCost();
-				break;
+				return result;
 			case HD: 
 				result[0] = possible.getHighestDanger() < best.getHighestDanger();
 				result[1] = possible.getHighestDanger() == best.getHighestDanger();
-				break;
+				return result;
 		}
 		
 		return result;

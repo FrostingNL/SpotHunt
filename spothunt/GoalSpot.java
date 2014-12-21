@@ -53,7 +53,7 @@ public class GoalSpot implements Spot {
 			int diffY = Math.abs(this.getY() - playfield.players[g].getY());
 			totalPlayerDistance = totalPlayerDistance + (int) Math.sqrt(Math.pow(diffX, 2)+Math.pow(diffY, 2));
 		}
-		System.out.println("Total Player Distance: " + totalPlayerDistance);
+		// System.out.println("Total Player Distance: " + totalPlayerDistance);
 	}
 	
 	/**
@@ -125,21 +125,238 @@ public class GoalSpot implements Spot {
 		return surroundThreat;
 	}
 	
-	//TODO: Finish this function
+	//TODO: Cut and clean this code
 	/**
 	 * Calculates the surround threat arround this spot. NOT FINISHED
 	 * @param x			the x coordinate of the MovingSpot (or other object in the playfield)
 	 * @param y			the y coordinate of the MovingSpot (or other object in the playfield)
 	 * @return result	the value of the danger cost of the path from [x,y] to this GoalSpot
 	 */
-	public int calculateDangerCost(int x, int y) {
-		int result = 0;
+	public int calculateDangerCost(int spotX, int spotY, PossibleTarget current) {
+		int possibleX = this.x - spotX;
+		int possibleY = this.y - spotY;
+		int dangerCost = 0;
+		int highestDanger = 0;
+		double calculatedCost = 0;
+		// System.out.println("Y: " + possibleY);
+		// System.out.println("X: " + possibleX);
+		// System.out.println(possibleY==0);
+		// System.out.println(possibleX==0);
 		
-		/*
-		 * CLEANED UP QUICKEST DANGER PATH COST THING HERE! 
-		 */
-		
-		return result;
+		if(possibleX==0) {
+			// System.out.println("in X==0");
+			for(int i=1; i <= Math.abs(possibleY); i++) {
+				if(possibleY>0) {
+					int nextCost = playfield.cells[spotX][spotY+i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				} else {
+					int nextCost = playfield.cells[spotX][spotY-i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				}
+			}
+		calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(possibleY);
+		}else if(possibleY==0) {
+			// System.out.println("in Y==0");
+			for(int i=1; i <= Math.abs(possibleX); i++) {
+				if(possibleX>0) {
+					// System.out.println("in Y==0 | if | i=" +i + " | Danger=" + playfield.cells[spotX+i][spotY].getDanger());
+					int nextCost =  playfield.cells[spotX+i][spotY].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				} else {
+					// System.out.println("in Y==0 | else | i="+i + " | Danger=" + playfield.cells[spotX-i][spotY].getDanger());
+					int nextCost =  playfield.cells[spotX-i][spotY].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				}
+			}
+		calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(possibleX);
+		}else if((double)possibleX/(double)possibleY==1.0) {
+			// System.out.println("in X/Y==1");
+			//TODO: see if the last Else If and the last Else are correctly implemented! :)
+			for(int i=1; i <= possibleY; i++) {
+				if(possibleX>0 && possibleY>0) {
+					int nextCost =  playfield.cells[spotX+i][spotY+i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				} else if(possibleX<0 && possibleY<0) {
+					int nextCost =  playfield.cells[spotX-i][spotY-i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				} else if(possibleX<0 && possibleY>0) {
+					int nextCost =  playfield.cells[spotX-i][spotY+i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				} else {
+					int nextCost =  playfield.cells[spotX+i][spotY-i].getDanger();
+					if(nextCost > highestDanger) highestDanger = nextCost;
+					dangerCost = dangerCost + nextCost;
+				}
+			}
+		calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
+		} else {
+			// System.out.println("PossibleX, PossibleY: " + possibleX + ", " + possibleY);
+			if(possibleX>0 && possibleY>0) {
+				if(possibleX > possibleY) {
+					for(int i=1; i<possibleY+1; i++) {
+						int nextCost =  playfield.cells[spotX+i][spotY+i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+i) + ", " + (spotY+i));
+						// System.out.println("Cost: " + playfield.cells[spotX+i][spotY+i].getDanger());
+					}
+					int remaining = possibleX - possibleY + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost = playfield.cells[spotX+possibleY+i][spotY+possibleY].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+possibleY+i) + ", " + (spotY+possibleY));
+						// System.out.println("Cost: " + playfield.cells[spotX+possibleY+i][spotY+possibleY].getDanger());
+					}
+				} else {
+					for(int i=1; i<possibleX+1; i++) {
+						int nextCost =  playfield.cells[spotX+i][spotY+i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+i) + ", " + (spotY+i));
+						// System.out.println("Cost: " + playfield.cells[spotX+i][spotY+i].getDanger());
+					}
+					int remaining = possibleY - possibleX + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost =  playfield.cells[spotX+possibleX][spotY+possibleX+1].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+possibleX) + ", " + (spotY+possibleX+i));
+						// System.out.println("Cost: " + playfield.cells[spotX+possibleX][spotY+possibleX+i].getDanger());
+					}
+				}
+				calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
+			} else if(possibleX<0 && possibleY<0) {
+				//NEGATIEFF!!
+				if(possibleX > possibleY) {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					for(int i=1; i<possibleX+1; i++) {
+						int nextCost =  playfield.cells[spotX-i][spotY-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-i) + ", " + (spotY-i));
+						// System.out.println("Cost: " + playfield.cells[spotX-i][spotY-i].getDanger());
+					}
+					int remaining = possibleY - possibleX + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost =  playfield.cells[spotX-possibleX][spotY-possibleX-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-possibleX) + ", " + (spotY-possibleX-i));
+						// System.out.println("Cost: " + playfield.cells[spotX-possibleX][spotY-possibleX-i].getDanger());
+					}
+				} else {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					for(int i=1; i<possibleY+1; i++) {
+						int nextCost =  playfield.cells[spotX-i][spotY-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-i) + ", " + (spotY-i));
+						// System.out.println("Cost: " + playfield.cells[spotX-i][spotY-i].getDanger());
+					}
+					int remaining = possibleX - possibleY + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost =  playfield.cells[spotX-possibleY-i][spotY-possibleY].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-possibleY-i) + ", " + (spotY-possibleY));
+						// System.out.println("Cost: " + playfield.cells[spotX-possibleY-i][spotY-possibleY].getDanger());
+					}
+				}
+				calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
+			} else if(possibleX<0 && possibleY>0) {
+				if(Math.abs(possibleX) < Math.abs(possibleY)) {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					for(int i=1; i<possibleX+1; i++) {
+						int nextCost =  playfield.cells[spotX-i][spotY+i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-i) + ", " + (spotY+i));
+						// System.out.println("Cost: " + playfield.cells[spotX-i][spotY+i].getDanger());
+					}
+					int remaining = possibleY - possibleX + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost =  playfield.cells[spotX-possibleX][spotY+possibleX+i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-possibleX) + ", " + (spotY+possibleX+i));
+						// System.out.println("Cost: " + playfield.cells[spotX-possibleX][spotY+possibleX+i].getDanger());
+					}
+				} else {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					for(int i=1; i<possibleY+1; i++) {
+						int nextCost = playfield.cells[spotX-i][spotY+i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-i) + ", " + (spotY+i));
+						// System.out.println("Cost: " + playfield.cells[spotX-i][spotY+i].getDanger());
+					}
+					int remaining = possibleX - possibleY + 1;
+					// System.out.println("Remaining: " + remaining);
+					for(int i = 1; i < remaining; i++) {
+						int nextCost = playfield.cells[spotX-possibleY-i][spotY+possibleY].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX-possibleY-i) + ", " + (spotY+possibleY));
+						// System.out.println("Cost: " + playfield.cells[spotX-possibleY-i][spotY+possibleY].getDanger());
+					}
+				}
+				calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
+			} else { // possibleX>0 && possibleY<0
+				if(Math.abs(possibleX) < Math.abs(possibleY)) {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					for(int i=1; i<possibleX+1; i++) {
+						int nextCost = playfield.cells[spotX+i][spotY-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+i) + ", " + (spotY-i));
+						// System.out.println("Cost: " + playfield.cells[spotX+i][spotY-i].getDanger());
+					}
+					int remaining = possibleY - possibleX + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost = playfield.cells[spotX+possibleX][spotY+possibleX-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+possibleX) + ", " + (spotY-possibleX-i));
+						// System.out.println("Cost: " + playfield.cells[spotX+possibleX][spotY-possibleX-i].getDanger());
+					}
+				} else {
+					possibleX = Math.abs(possibleX);
+					possibleY = Math.abs(possibleY);
+					// System.out.println("posY" + possibleY);
+					for(int i=1; i<possibleY+1; i++) {
+						int nextCost = playfield.cells[spotX+i][spotY-i].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+i) + ", " + (spotY-i));
+						// System.out.println("Cost: " + playfield.cells[spotX+i][spotY-i].getDanger());
+					}
+					int remaining = possibleX - possibleY + 1;
+					for(int i = 1; i < remaining; i++) {
+						int nextCost =  playfield.cells[spotX+possibleY+i][spotY-possibleY].getDanger();
+						if(nextCost > highestDanger) highestDanger = nextCost;
+						dangerCost = dangerCost + nextCost;
+						// System.out.println("X,Y: " + (spotX+possibleY+i) + ", " + (spotY-possibleY));
+						// System.out.println("Cost: " + playfield.cells[spotX+possibleY+i][spotY-possibleY].getDanger());
+					}
+				}
+				calculatedCost = (int)Math.pow(dangerCost, 2)/Math.abs(Math.sqrt(Math.pow(possibleX, 2)+Math.pow(possibleY, 2)));
+			}
+		}
+		current.setHighestDanger(highestDanger);
+		return (int) calculatedCost;
 	}
 	
 	public String toString() {

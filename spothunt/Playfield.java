@@ -42,7 +42,7 @@ public class Playfield {
 		this.width = width;
 		this.height = height;
 			// Create a new 2D array called cells of type Cell.
-		cells = new Cell[width][height];
+		cells = new Cell[height][width];
 			// Set the playfield up given the width and height.
 		setupPlayfield(width, height, wall);
 			// Create a new MovingSpot and link it to this playfield.

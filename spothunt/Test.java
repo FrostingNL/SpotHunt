@@ -12,23 +12,27 @@ public class Test {
 			// Add 3 players to playfield
 		test.createPlayers(3);
 			// Create array with 3 GoalSpots
-		GoalSpot[] goals = new GoalSpot[] {new GoalSpot(test, 5, 1), new GoalSpot(test, 1, 5), new GoalSpot(test, 8,6)};
+		GoalSpot[] goals = new GoalSpot[] {new GoalSpot(test, 3, 6), new GoalSpot(test, 8, 4), new GoalSpot(test, 3,1)};
 			// Add the goalSpots to the playfield
 		test.setGoals(goals);
 			// Move the MovingSpot
-		test.moveSpot(6, 3);
+		test.moveSpot(6,8);
 			// Move P'layer 0
-		test.movePlayer(0, 7, 6);
+		test.movePlayer(0, 5, 9);
 			// Move Player 1
-		test.movePlayer(1, 4, 1);
+		test.movePlayer(1, 4, 6);
 			// Move Player 2
-		test.movePlayer(2, 6, 4);
+		test.movePlayer(2, 1, 8);
 			// Get information about the compoments
 		test.getInformation();
 			// Show field
 		test.showPFValues(3);
 		
 		/* SUPER SECRET TEST AREA!! Not so secret anymore though */
+		
+		GoalSpot target = test.spot.pickTarget(goals);
+		System.out.println("\nPicked: " + target.toString());
+		/*
 		PossibleTarget[] possibleTargets = new PossibleTarget[test.goals.length];
 		for(int k = 0; k < test.goals.length; k ++) {
 			possibleTargets[k] = new PossibleTarget(test.goals[k]);
@@ -42,6 +46,7 @@ public class Test {
 			System.out.println("X: " + possibleX);
 			System.out.println(possibleY==0);
 			System.out.println(possibleX==0);
+			
 			if(possibleX==0) {
 				System.out.println("in X==0");
 				for(int i=1; i <= Math.abs(possibleY); i++) {
@@ -467,6 +472,7 @@ public class Test {
 			
 			System.out.println("Still didn't find a good one :( - I'll pick random now as they're equally bad.");
 		}
+		*/
 	}
 	
 	public Cell[] findPath(MovingSpot spot, GoalSpot goal) {

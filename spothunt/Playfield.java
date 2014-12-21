@@ -46,7 +46,7 @@ public class Playfield {
 			// Set the playfield up given the width and height.
 		setupPlayfield(width, height, wall);
 			// Create a new MovingSpot and link it to this playfield.
-		spot = new MovingSpot(this, new StupidSearch(this));
+		spot = new MovingSpot(this, new GreedySearch(this));
 	}
 	
 	/**

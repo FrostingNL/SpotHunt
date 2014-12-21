@@ -125,4 +125,8 @@ public class Cell {
 		return this.y;
 	}
 	
+	public String toString() {
+		return "[" + this.x + ", " + this.y + "]";
+	}
+	
 }

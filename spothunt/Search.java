@@ -25,5 +25,5 @@ public interface Search {
 	 * @param spot			the MovingSpot (to get the values of the playfield)
 	 * @return	a Cell which is the next Cell to move to
 	 */
-	public Cell nextMove (int x, int y, int xDirection, int yDirection, MovingSpot spot);
+	public Cell nextMove(int x, int y, int xDirection, int yDirection, int remainingX, int remainingY, MovingSpot spot);
 }

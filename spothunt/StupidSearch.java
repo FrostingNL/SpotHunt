@@ -39,11 +39,11 @@ public class StupidSearch implements Search {
 			yDirection = 1;
 		}
 		
-		Cell nextMove = nextMove(xSpot, ySpot, xDirection, yDirection, spot);
+		Cell nextMove = nextMove(xSpot, ySpot, xDirection, yDirection, 0, 0, spot);
 		path.add(nextMove);
 		boolean foundTarget = false;
 		while(!foundTarget) {
-			nextMove = nextMove(path.get(path.size()-1).getX(), path.get(path.size()-1).getY(), xDirection, yDirection, spot);
+			nextMove = nextMove(path.get(path.size()-1).getX(), path.get(path.size()-1).getY(), xDirection, yDirection, 0, 0, spot);
 			path.add(nextMove);
 			if(nextMove.getX()==goal.getX() && nextMove.getY()==goal.getY()) foundTarget = true;
 		}
@@ -54,7 +54,7 @@ public class StupidSearch implements Search {
 		return path;
 	}
 	
-	public Cell nextMove (int x, int y, int xDirection, int yDirection, MovingSpot spot) {
+	public Cell nextMove (int x, int y, int xDirection, int yDirection, int remainingX, int remainingY, MovingSpot spot) {
 		List<Cell> CellDanger = new ArrayList<Cell>();
 		if(y+1<spot.playfield.height) CellDanger.add(spot.playfield.cells[x][y+1]);
 		if(y-1>=0) CellDanger.add(spot.playfield.cells[x][y-1]);

@@ -16,7 +16,7 @@ public class MovingSpot implements Spot {
 	int x = 0;
 	int y = 0;
 	Playfield playfield;
-	public static Factor[] factors = new Factor[]{Factor.TPD, Factor.ST, Factor.SD, Factor.FDC, Factor.HD};
+	public static Factor[] factors = new Factor[]{Factor.FDC, Factor.SD, Factor.HD, Factor.TPD, Factor.ST};
 	
 	/**
 	 * The constructor of <code>MovingSpot</code>. This will link the spot to a <code>Playfield</code> and set it to its start location <code>[0,0]</code>.
@@ -104,15 +104,18 @@ public class MovingSpot implements Spot {
 		
 			// Check if bestOptions.size() is 1, as that means there is only one best Spot -> return this spot
 		if(bestOptions.size()==1) {
+			System.out.println("Found directly!");
 			return bestOptions.get(0).toGoalSpot();
 		} // Else: Continue with all the best options left
 		
 			// Make new list to be rated on independent factors (bestOptions = backup)
-		List<PossibleTarget> compareOptions = bestOptions;
+		//List<PossibleTarget> compareOptions = bestOptions;
 			// Loop through all the factors and compare them for all the remaining best options
+		System.out.println("Compare again: ");
 		for(Factor current : factors) {
-			compareOptions = bestOptions;
-			compareOptions = compareFactor(current, compareOptions);
+			System.out.println(bestOptions.get(0).toString());
+			System.out.println(bestOptions.get(1).toString());
+			List <PossibleTarget> compareOptions =  compareFactor(current, bestOptions);
 				// If the list has a size of 1 then, a result has been found and return this GoalSpot
 			if(compareOptions.size()==1) {
 				return compareOptions.get(0).toGoalSpot();
@@ -121,8 +124,9 @@ public class MovingSpot implements Spot {
 				compareOptions = bestOptions; */
 			}
 		}
+		System.out.println("Random: ");
 			//If all else fails, pick a random target from the original PossibleTargets
-		return pickRandomGoal(possibleTargets);
+		return pickRandomGoal(bestOptions);
 	}
 	
 	/**
@@ -216,24 +220,21 @@ public class MovingSpot implements Spot {
 	private Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
 			// Create a new Boolean[] that will contain the results of comparePossibleTargets
 		Boolean[] result = new Boolean[2];
+		System.out.println("Spots: " + possible.toGoalSpot().toString() + ", " + best.toGoalSpot().toString());
 		
 			// Look at which factor has to be compared and compare them between two PossibleTargets
 		switch(factor) {
 			case TPD:
-				System.out.println("GetTPD: " + possible.getTPD() + ", " + best.getTPD());
 				result[0] = (possible.getTPD() > best.getTPD());
 				result[1] = possible.getTPD() == best.getTPD();
-				System.out.println("result 0: " + result[0]);
-				System.out.println("result 1: " + result[1]);
+				//System.out.println("result 0: " + result[0]);
+				//System.out.println("result 1: " + result[1]);
 				return result;
 			case ST:
-				System.out.println("GetST: " + possible.getSurThreat() + ", " + best.getSurThreat());
 				result[0] = possible.getSurThreat() < best.getSurThreat();
-				System.out.println("Hiero: " + result[0]);
 				result[1] = possible.getSurThreat() == best.getSurThreat();
 				return result;
 			case SD:
-				System.out.println("GetSD: " + possible.getSD() + ", " + best.getSD());
 				result[0] = possible.getSD() < best.getSD();
 				result[1] = possible.getSD() == best.getSD();
 				return result;
@@ -263,7 +264,7 @@ public class MovingSpot implements Spot {
 			// Add this target to the list of bestOptions
 		bestOptions.add(highestRating);
 			// Loop through all the possibleTargets and compare their ratings
-		for(int k = 0; k < possibleTargets.length; k++) {
+		for(int k = 1; k < possibleTargets.length; k++) {
 			if(highestRating.rating < possibleTargets[k].rating) {	// if one with a higher rating is found, empty the list and add this as best
 				bestOptions.clear();
 				highestRating = possibleTargets[k];
@@ -280,14 +281,15 @@ public class MovingSpot implements Spot {
 	 * @param possibleTargets the array containing the PossibleTargets
 	 * @return target	, random GoalSpot
 	 */
-	private GoalSpot pickRandomGoal(PossibleTarget[] possibleTargets) {
+	private GoalSpot pickRandomGoal(List<PossibleTarget> bestOptions) {
 		GoalSpot target = null;
 			// Range is how many spots there are (-1, as the length is 1 higher than the amount of indexes used)
-		int range = possibleTargets.length-1;
+		int range = bestOptions.size()-1;
 			// Math.random picks a number between 0 and 1, so balance that with the range and you should get a number between 0 and range (at least thats the idea..)
 		int picked = (int) (Math.random()*range);
+		System.out.println("Random picked: " + picked);
 			// Pick the spot from possibleTargets that is the same as the random picked number
-		target = possibleTargets[picked].toGoalSpot();
+		target = bestOptions.get(picked).toGoalSpot();
 		return target;
 	}
 	

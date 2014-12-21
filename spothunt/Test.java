@@ -12,17 +12,17 @@ public class Test {
 			// Add 3 players to playfield
 		test.createPlayers(3);
 			// Create array with 3 GoalSpots
-		GoalSpot[] goals = new GoalSpot[] {new GoalSpot(test, 3, 6), new GoalSpot(test, 8, 4), new GoalSpot(test, 3,1)};
+		GoalSpot[] goals = new GoalSpot[] {new GoalSpot(test, 5, 1), new GoalSpot(test, 1, 5), new GoalSpot(test, 9,9)};
 			// Add the goalSpots to the playfield
 		test.setGoals(goals);
 			// Move the MovingSpot
-		test.moveSpot(6,8);
+		test.moveSpot(1,1);
 			// Move P'layer 0
-		test.movePlayer(0, 5, 9);
+		test.movePlayer(0, 5, 5);
 			// Move Player 1
-		test.movePlayer(1, 4, 6);
+		test.movePlayer(1, 5, 5);
 			// Move Player 2
-		test.movePlayer(2, 1, 8);
+		test.movePlayer(2, 5, 5);
 			// Get information about the compoments
 		test.getInformation();
 			// Show field

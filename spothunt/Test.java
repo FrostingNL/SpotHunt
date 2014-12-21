@@ -13,7 +13,7 @@ public class Test {
 			// Move the MovingSpot
 		test.moveSpot(0,6);
 			// Move P'layer 0
-		test.movePlayer(0, 0, 5);
+		test.movePlayer(0, 3, 5);
 			// Move Player 1
 		test.movePlayer(1, 1, 5);
 			// Move Player 2

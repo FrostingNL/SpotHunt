@@ -13,6 +13,13 @@ public class Cell {
 	boolean player = false;
 	boolean spot = false;
 	boolean goal = false;
+	int x = -1;
+	int y = -1;
+	
+	public Cell(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 	
 	/**
 	 * <code>increaseDanger</code> increases (or decreases) the danger level of a <code>Cell</code>.
@@ -108,6 +115,14 @@ public class Cell {
 	 */
 	public int getDanger() {
 		return danger;
+	}
+	
+	public int getX() {
+		return this.x;
+	}
+	
+	public int getY() {
+		return this.y;
 	}
 	
 }

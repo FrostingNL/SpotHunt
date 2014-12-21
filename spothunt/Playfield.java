@@ -61,7 +61,7 @@ public class Playfield {
 			// Create an area for a given height and width
 		for(int i = 0; i<height; i++) {
 			for(int j = 0; j < width; j++) {
-				cells[i][j] = new Cell();
+				cells[i][j] = new Cell(i,j);
 				// Increases danger of edges of the field by 2.
 				if(i==0 || j == 0 || i == height-1|| j == width-1) {
 					cells[i][j].increaseDanger(wall);

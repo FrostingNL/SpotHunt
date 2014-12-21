@@ -142,7 +142,7 @@ public class MovingSpot implements Spot {
 		Boolean[] compares = new Boolean[2];
 			// Set the rating to the corresponding Factor rating
 		double rating = factor.getRating();
-		System.out.println("rating: " + rating);
+		//System.out.println("rating: " + rating);
 			// Create new list that will contain all the equals
 		List<PossibleTarget> equals = new ArrayList<PossibleTarget>();
 			// Add the current best to the list of equals
@@ -153,10 +153,10 @@ public class MovingSpot implements Spot {
 					// Set the current possibleTarget as 'current'
 				PossibleTarget current = possibleTargets[k];
 					// Compare the current with the best PossibleTarget, based on a factor
-				System.out.println("current " + current.toString());
-				System.out.println("best" + best.toString());
+				//System.out.println("current " + current.toString());
+				//System.out.println("best" + best.toString());
 				compares = comparePossibleTargets(factor, current, best);
-				System.out.println("Compares: [0]=" + compares[0] + ", compares[1]=" + compares[1]);
+				//System.out.println("Compares: [0]=" + compares[0] + ", compares[1]=" + compares[1]);
 				if(compares[0]==true) { // if current >/< than the best, remove the best from the list and set this as best and add to list
 					for(int j=0; j < equals.size(); j++) {
 						equals.get(j).rating = equals.get(j).rating - rating;
@@ -171,9 +171,9 @@ public class MovingSpot implements Spot {
 					equals.add(best);
 				}
 			}
-			for(PossibleTarget pt : possibleTargets) {
+			/*for(PossibleTarget pt : possibleTargets) {
 				System.out.println("Rating: " + pt.rating);
-			}
+			}*/
 		return possibleTargets;
 	}
 	
@@ -220,7 +220,7 @@ public class MovingSpot implements Spot {
 	private Boolean[] comparePossibleTargets(Factor factor, PossibleTarget possible, PossibleTarget best) {
 			// Create a new Boolean[] that will contain the results of comparePossibleTargets
 		Boolean[] result = new Boolean[2];
-		System.out.println("Spots: " + possible.toGoalSpot().toString() + ", " + best.toGoalSpot().toString());
+		//System.out.println("Spots: " + possible.toGoalSpot().toString() + ", " + best.toGoalSpot().toString());
 		
 			// Look at which factor has to be compared and compare them between two PossibleTargets
 		switch(factor) {
@@ -291,6 +291,55 @@ public class MovingSpot implements Spot {
 			// Pick the spot from possibleTargets that is the same as the random picked number
 		target = bestOptions.get(picked).toGoalSpot();
 		return target;
+	}
+	
+	public List<Cell> findPath(GoalSpot goal) {
+		System.out.println("MovingSpot: " + this.toString());
+		System.out.println("GoalSpot: " + goal.toString());
+
+		List<Cell>path = new ArrayList<Cell>();
+		int xGoal = goal.getX();
+		int yGoal = goal.getY();
+		int xSpot = this.getX();
+		int ySpot = this.getY();
+		int xDirection;
+		int yDirection;
+		
+		
+		if(xGoal-xSpot==0) {
+			xDirection = 0;
+		} else if(xGoal-xSpot>0) {
+			xDirection = -1;
+		} else {
+			xDirection = 1;
+		}
+		
+		if(yGoal-ySpot==0) {
+			yDirection = 0;
+		} else if(yGoal-ySpot>0) {
+			yDirection = -1;
+		} else {
+			yDirection = 1;
+		}
+		
+		Cell nextMove = nextMove(xSpot, ySpot, xDirection, yDirection);
+		path.add(nextMove);
+		boolean foundTarget = false;
+		while(!foundTarget) {
+			nextMove = nextMove(path.get(path.size()-1).getX(), path.get(path.size()-1).getY(), xDirection, yDirection);
+			path.add(nextMove);
+			if(nextMove.getX()==goal.getX() && nextMove.getY()==goal.getY()) foundTarget = true;
+		}
+		
+		return path;
+	}
+	
+	public Cell nextMove (int x, int y, int xDirection, int yDirection) {
+		int randomX = (int) (Math.random()*(playfield.width-1));
+		int randomY = (int) (Math.random()*(playfield.height-1));
+		Cell next = playfield.cells[randomX][randomY];
+		System.out.println(next.getX() + ", " + next.getY());
+		return next;
 	}
 	
 	public int getX() {

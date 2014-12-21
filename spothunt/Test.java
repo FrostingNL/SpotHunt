@@ -18,20 +18,21 @@ public class Test {
 			// Move the MovingSpot
 		test.moveSpot(1,1);
 			// Move P'layer 0
-		test.movePlayer(0, 5, 5);
+		test.movePlayer(0, 5, 4);
 			// Move Player 1
-		test.movePlayer(1, 5, 5);
+		test.movePlayer(1, 4, 5);
 			// Move Player 2
-		test.movePlayer(2, 5, 5);
+		test.movePlayer(2, 4, 5);
 			// Get information about the compoments
 		test.getInformation();
 			// Show field
 		test.showPFValues(3);
 		
 		/* SUPER SECRET TEST AREA!! Not so secret anymore though */
-		
 		GoalSpot target = test.spot.pickTarget(goals);
 		System.out.println("\nPicked: " + target.toString());
+		
+		test.spot.findPath(target);
 		/*
 		PossibleTarget[] possibleTargets = new PossibleTarget[test.goals.length];
 		for(int k = 0; k < test.goals.length; k ++) {
@@ -473,12 +474,5 @@ public class Test {
 			System.out.println("Still didn't find a good one :( - I'll pick random now as they're equally bad.");
 		}
 		*/
-	}
-	
-	public Cell[] findPath(MovingSpot spot, GoalSpot goal) {
-		System.out.println("MovingSpot: " + spot.toString());
-		System.out.println("GoalSpot: " + goal.toString());
-		Cell[] result = null;
-		return result;
 	}
 }

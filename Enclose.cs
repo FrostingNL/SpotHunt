@@ -1,7 +1,7 @@
 using UnityEngine;
 //Class to check whether a spot is enclosed
 public class Enclose : MonoBehaviour {
-
+	
 	Spot spotThis;
 	TagPlayer player1;
 	TagPlayer player2;
@@ -9,12 +9,12 @@ public class Enclose : MonoBehaviour {
 
 	//TODO audio
 	public AudioClip[] a_goalSounds;
-
+	
 	public Logger loggerScript;
 	private GameObject mainCameraObject;
 	//TODO: radius should be size of players radius
 	float radius = 2.0;
-
+	
 	// Use this for initialization
 	void isEnclosed(Spot spot) {
 		/*if(spotTrigger.gameObject.transform.parent != null && spotTrigger.gameObject.transform.parent.name == "spot")
@@ -61,7 +61,7 @@ public class Enclose : MonoBehaviour {
 		bool touching = false;
 		Collider2D[] collidesWithPlayer1 = Physics2D.OverlapCircleAll(player1.transform.position, radius);
 		Collider2D[] collidesWithPlayer2 = Physics2D.OverlapCircleAll(player2.transform.position, radius);
-		//Only need to check 3 conditions, whether 1 touches 2 and 3 and whether 2 and 3 touch.
+		//Only need to check 3 conditions, whether 1 touches 2 and 3 and whether 2 and 3 touch. 
 		// Otherwise you check on a lot of conditions that must be true
 		// For example is 1 touches 2 then also 2 touches 1.
 		if (Contains(collidesWithPlayer1, player2) && Contains(collidesWithPlayer1, player3)

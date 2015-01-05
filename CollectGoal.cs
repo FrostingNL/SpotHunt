@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public class CollectGoal : MonoBehaviour {
 	
 	Spot spotThis;
-	
 	//TODO audio
 	public AudioClip[] a_goalSounds;
 	
@@ -58,7 +57,7 @@ public class CollectGoal : MonoBehaviour {
 		goalSpots.Remove (goalSpotObject);
 		if (goalSpots.Count == 0) {
 			//Spot has won, it has collected the last goalSpot
-			//TODO: Call a game over method
+			//TODO: Game Over
 		}
 	}
 }
